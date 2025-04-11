@@ -23,6 +23,9 @@ public class CustomSecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         log.info("-------------configure-------");
+        http.cors(cors -> {
+            cors.configurationSource(corsConfigurationSource());
+        });
 
         //로그인 화면 필요 없음
         http.formLogin(config -> {
