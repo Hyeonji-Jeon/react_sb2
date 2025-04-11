@@ -19,21 +19,25 @@ public class CustomSecurityConfig {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
-        log.info("--------configure---------");
+        log.info("-------------configure-------");
 
+        //로그인 화면 필요 없음
         http.formLogin(config -> {
-            config.disable();
+           config.disable();
         });
 
+        //세션 생성 필요 없음
         http.sessionManagement(config -> {
-           config.sessionCreationPolicy(SessionCreationPolicy.NEVER);
+            config.sessionCreationPolicy(SessionCreationPolicy.NEVER);
         });
 
         return http.build();
     }
 
+    //CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
