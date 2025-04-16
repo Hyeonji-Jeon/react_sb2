@@ -21,7 +21,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
     public enum JWTErrorCode {
 
-        NO_ACCESS_TOKEN(401, "No access token");
+        NO_ACCESS_TOKEN(401, "No access token"),
+        EXPIRED_TOKEN(401, "Expired token"),
+        BAD_SIGNATURE(401, "Bad signature"),
+        MALFORMED_TOKEN(401, "Malformed token");
 
         private int code;
         private String message;
@@ -71,8 +74,15 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         try{
             jwtUtil.validateToken(accessToken);
         }catch(Exception e){
-            log.error("======================");
-            log.error(e.getMessage());
+            log.error("===========================");
+            String message = e.getMessage();
+            if(message.startsWith("JWT signature")){
+                handleException(response, JWTErrorCode.BAD_SIGNATURE);
+            }else if(message.startsWith("Malformed")){
+                handleException(response, JWTErrorCode.MALFORMED_TOKEN);
+            }else if(message.startsWith("JWT expired")){
+                handleException(response, JWTErrorCode.EXPIRED_TOKEN);
+            }
         }
 
         filterChain.doFilter(request, response);
