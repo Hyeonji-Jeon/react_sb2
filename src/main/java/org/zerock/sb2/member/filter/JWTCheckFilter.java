@@ -32,5 +32,6 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
         log.info("------doFilterInternal------------");
 
+        filterChain.doFilter(request, response);
     }
 }
