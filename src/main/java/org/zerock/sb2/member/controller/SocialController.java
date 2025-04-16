@@ -23,14 +23,14 @@ public class SocialController {
     private final JWTUtil jwtUtil;
 
     @PostMapping("/api/v1/member/login")
-    public ResponseEntity<String[]> login(@RequestParam("uid") String uid, @RequestParam("upw") String upw) {
+    public ResponseEntity<String[]> login(@RequestParam("mid") String mid, @RequestParam("mpw") String mpw) {
 
         log.info("login----------------------");
-        log.info(uid + " " + upw);
+        log.info(mid + " " + mpw);
 
-        String accessToken = jwtUtil.createToken(Map.of("uid", uid), 5);
+        String accessToken = jwtUtil.createToken(Map.of("mid", mid), 5);
 
-        String refreshToken = jwtUtil.createToken(Map.of("uid", uid), 10);
+        String refreshToken = jwtUtil.createToken(Map.of("mid", mid), 10);
 
         String[] result = new String[]{accessToken, refreshToken};
 
