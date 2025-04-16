@@ -19,10 +19,33 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
+    public enum JWTErrorCode {
+
+        NO_ACCESS_TOKEN(401, "No access token");
+
+        private int code;
+        private String message;
+
+        JWTErrorCode(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+        public int getCode() {
+            return code;
+        }
+        public String getMessage() {
+            return message;
+        }
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
         log.info("------shouldNotFilter------------");
+
+        if(request.getServletPath().startsWith("/api/v1/member/")) {
+            return true;
+        }
 
         return false;
     }
@@ -32,6 +55,32 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
         log.info("------doFilterInternal------------");
 
+        log.info("requestURI: " + request.getRequestURI());
+
+        String headerStr = request.getHeader("Authorization");
+
+        log.info("headerStr: " + headerStr);
+
+        //Access Token이 없는 경우
+        if (headerStr == null || !headerStr.startsWith("Bearer ")) {
+            handleException(response, JWTErrorCode.NO_ACCESS_TOKEN);
+            return;
+        }
+        String accessToken = headerStr.substring(7);
+
+        try{
+            jwtUtil.validateToken(accessToken);
+        }catch(Exception e){
+            log.error("======================");
+            log.error(e.getMessage());
+        }
+
         filterChain.doFilter(request, response);
     }
+    private void handleException(HttpServletResponse response, JWTErrorCode errorCode) throws IOException {
+        response.setStatus(errorCode.getCode());
+        response.setContentType("application/json");
+        response.getWriter().println("{\"error\": \"" + errorCode.getMessage() + "\"}");
+    }
+
 }
