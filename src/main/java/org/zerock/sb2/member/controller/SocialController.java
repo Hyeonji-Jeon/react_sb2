@@ -4,10 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zerock.sb2.member.service.MemberService;
+import org.zerock.sb2.util.JWTUtil;
+
+import java.util.Map;
 
 @RestController
 @Log4j2
@@ -15,6 +19,23 @@ import org.zerock.sb2.member.service.MemberService;
 public class SocialController {
 
     private final MemberService memberService;
+
+    private final JWTUtil jwtUtil;
+
+    @PostMapping("/api/v1/member/login")
+    public ResponseEntity<String[]> login(@RequestParam("uid") String uid, @RequestParam("upw") String upw) {
+
+        log.info("login----------------------");
+        log.info(uid + " " + upw);
+
+        String accessToken = jwtUtil.createToken(Map.of("uid", uid), 5);
+
+        String refreshToken = jwtUtil.createToken(Map.of("uid", uid), 10);
+
+        String[] result = new String[]{accessToken, refreshToken};
+
+        return ResponseEntity.ok(result);
+    }
 
     @RequestMapping("/api/v1/member/kakao")
     public ResponseEntity<String[]> getKakao( @RequestParam("accessToken") String accessToken) {
